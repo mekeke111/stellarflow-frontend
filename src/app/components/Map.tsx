@@ -3,6 +3,7 @@
 import "leaflet/dist/leaflet.css";
 import React, { useEffect, useState, memo } from "react";
 import dynamic from "next/dynamic";
+import { useErrorTimeout } from "../hooks/useErrorTimeout";
 
 // Dynamically import map components to avoid SSR issues
 const MapContainer = dynamic(() => import("react-leaflet").then((mod) => mod.MapContainer), { ssr: false });
@@ -18,7 +19,7 @@ interface NetworkNode {
 function Map() {
   const [geoData, setGeoData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { error, setError } = useErrorTimeout({ timeoutMs: 5000 });
 
 export default memo(Map);
       try {

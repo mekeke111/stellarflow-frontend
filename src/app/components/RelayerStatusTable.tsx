@@ -11,6 +11,10 @@ export interface RelayerStatusTableProps {
   relayers?: Relayer[];
 }
 
+// ---------------------------------------------------------------------------
+// StatusBadge — memoised with a custom comparator so it only re-renders when
+// the `status` field itself changes (not on every parent render cycle).
+// ---------------------------------------------------------------------------
 const StatusBadge = React.memo(
   function StatusBadge({ status }: { status: Relayer['status'] }) {
     return (
@@ -42,6 +46,38 @@ const StatusBadge = React.memo(
 
 StatusBadge.displayName = 'StatusBadge';
 
+// ---------------------------------------------------------------------------
+// RelayerRow — memoised per-row so a single relayer metric update only causes
+// that row to re-render, shielding the rest of the list from evaluation ticks.
+// ---------------------------------------------------------------------------
+const RelayerRow = React.memo(
+  function RelayerRow({ relayer }: { relayer: Relayer }) {
+    return (
+      <tr className="transition-colors hover:bg-white/[0.02]">
+        <td className="p-4 font-medium text-white">{relayer.name}</td>
+        <td className="p-4">
+          <StatusBadge status={relayer.status} />
+        </td>
+        <td className="p-4 text-right font-mono text-white/70">
+          {relayer.latency} ms
+        </td>
+      </tr>
+    );
+  },
+  (prev: { relayer: Relayer }, next: { relayer: Relayer }) =>
+    prev.relayer.id === next.relayer.id &&
+    prev.relayer.status === next.relayer.status &&
+    prev.relayer.latency === next.relayer.latency &&
+    prev.relayer.name === next.relayer.name,
+);
+
+RelayerRow.displayName = 'RelayerRow';
+
+// ---------------------------------------------------------------------------
+// RelayerStatusTable — memoised at the container level so a parent re-render
+// (e.g. triggered by an unrelated socket tick) is short-circuited here unless
+// the `relayers` array reference changes.
+// ---------------------------------------------------------------------------
 function RelayerStatusTable({ relayers = [] }: RelayerStatusTableProps) {
   return (
     <div className="w-full overflow-hidden rounded-xl border border-white/10 bg-black/40 backdrop-blur-md">
@@ -55,15 +91,7 @@ function RelayerStatusTable({ relayers = [] }: RelayerStatusTableProps) {
         </thead>
         <tbody className="divide-y divide-white/5">
           {relayers.map((relayer) => (
-            <tr key={relayer.id} className="transition-colors hover:bg-white/[0.02]">
-              <td className="p-4 font-medium text-white">{relayer.name}</td>
-              <td className="p-4">
-                <StatusBadge status={relayer.status} />
-              </td>
-              <td className="p-4 text-right font-mono text-white/70">
-                {relayer.latency} ms
-              </td>
-            </tr>
+            <RelayerRow key={relayer.id} relayer={relayer} />
           ))}
           {relayers.length === 0 && (
             <tr>
