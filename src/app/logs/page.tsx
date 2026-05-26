@@ -182,7 +182,8 @@ export default function LogsPage() {
           )}
         </AnimatePresence>
 
-        <div className="grid grid-cols-[140px_120px_100px_1fr_150px_120px] text-gray-500 text-[10px] uppercase tracking-wider border-b border-gray-800 bg-[#0d1117]/80 backdrop-blur-md sticky top-0 z-10">
+        {/* Sticky header sits outside the scroll container so it never scrolls away */}
+        <div className="grid grid-cols-[140px_120px_100px_1fr_150px_120px] text-gray-500 text-[10px] uppercase tracking-wider border-b border-gray-800 bg-[#0d1117]/80 backdrop-blur-md">
           <div className="px-6 py-4 font-medium">Timestamp</div>
           <div className="px-6 py-4 font-medium">Type</div>
           <div className="px-6 py-4 font-medium">Severity</div>
@@ -191,6 +192,7 @@ export default function LogsPage() {
           <div className="px-6 py-4 font-medium text-right">Reference</div>
         </div>
 
+        {/* Scroll container — useVirtualizer's getScrollElement targets this ref */}
         <div 
           ref={parentRef}
           className="overflow-auto max-h-[600px] scrollbar-thin scrollbar-thumb-gray-700"
