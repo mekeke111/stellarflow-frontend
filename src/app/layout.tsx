@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { ProgressBarProvider } from "./components/TopLoadingBar";
+import { UserProvider } from "./components/providers/UserProvider";
 import Script from "next/script";
 import {SocketProvider} from "./components/providers/SocketProvider";
 
@@ -70,11 +71,11 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <SocketProvider>
-          <ProgressBarProvider>
-            {children}
-          </ProgressBarProvider>
-          </SocketProvider>
+          <UserProvider>
+            <ProgressBarProvider>
+              {children}
+            </ProgressBarProvider>
+          </UserProvider>
         </ThemeProvider>
       </body>
     </html>
